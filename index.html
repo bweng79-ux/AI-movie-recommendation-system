@@ -52,34 +52,36 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
         
+        /* [NEW] 제목 위에 들어가는 골드색 배지 타이틀 */
+        .top-badge-title {
+            display: inline-block;
+            color: var(--primary); /* 골드 색상 적용 */
+            font-weight: 500;
+            font-size: 0.9rem;
+            letter-spacing: 3px; /* 넓은 자간으로 세련미 강조 */
+            text-transform: uppercase;
+            margin-bottom: 25px; 
+            padding: 0 5px;
+        }
+
         /* H1: 초경량(100)으로 설정, 자간 넓혀서 명품 느낌 극대화 */
         h1 {
             font-size: 3.8rem;
-            font-weight: 100; /* 초경량으로 변경! */
-            letter-spacing: 0.2em; /* 자간을 더 넓게 설정! */
+            font-weight: 100; 
+            letter-spacing: 0.2em; 
             color: var(--text-strong);
-            margin-bottom: 5px;
+            margin-bottom: 5px; /* 마진 조정 */
             text-transform: uppercase;
         }
         
-        /* 서브 타이틀 (영어) */
-        .english-title-sub {
-            font-size: 0.9rem;
-            color: var(--text-sub);
-            font-weight: 400; 
-            letter-spacing: 2px;
-            margin-bottom: 30px;
-            display: block;
-            text-transform: uppercase;
-        }
-
-        /* 부제 내용 변경 완료 */
+        /* 부제 내용 */
         p.subtitle {
             color: var(--text-sub);
             font-size: 1.1rem;
             max-width: 700px;
             margin: 0 auto;
             font-weight: 300; 
+            margin-top: 20px; /* H1과의 간격 확보 */
         }
 
         /* [Main Layout] */
@@ -103,7 +105,7 @@
         
         .form-label {
             display: block;
-            font-weight: 500; /* 중간 굵기로 설정 */
+            font-weight: 500; 
             margin-bottom: 10px;
             color: var(--text-main);
             font-size: 1rem;
@@ -119,12 +121,12 @@
             color: var(--text-main);
             transition: all 0.3s;
             font-family: var(--font-main);
-            font-weight: 300; /* 얇은 폰트 유지 */
+            font-weight: 300; 
         }
         input[type="text"]::placeholder { color: #555; font-weight: 300; }
         input[type="text"]:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.3); /* 더 강조된 그림자 */
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.3); 
             background-color: #000;
         }
 
@@ -267,14 +269,97 @@
         .detail-reason p { font-weight: 300; line-height: 1.8; }
         .spoiler-text { font-weight: 300; }
 
+        .modal-content {
+            background: var(--surface);
+            width: 90%; max-width: 800px;
+            border-radius: 15px;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.1);
+            border: 1px solid #333;
+            max-height: 90vh;
+            display: flex; flex-direction: column;
+            transform: translateY(20px); transition: transform 0.4s;
+        }
+        .modal-overlay.active .modal-content { transform: translateY(0); }
+
+        .modal-header {
+            background: #000;
+            color: var(--primary);
+            padding: 25px 30px;
+            border-bottom: 1px solid var(--primary);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .modal-close {
+            background: #282828;
+            border: none; color: white; width: 32px; height: 32px; border-radius: 50%;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .modal-close:hover { background: #444; }
+
+        /* Tabs */
+        .tabs { display: flex; background: #222; border-bottom: 1px solid #333; }
+        .tab-btn {
+            padding: 20px 30px; border: none; background: none; font-weight: 500;
+            color: #777; cursor: pointer; position: relative; font-size: 1rem;
+            transition: color 0.2s;
+        }
+        .tab-btn.active { color: var(--primary); }
+        .tab-btn::after {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px;
+            background: var(--primary); transform: scaleX(0); transition: transform 0.3s;
+        }
+        .tab-btn.active::after { transform: scaleX(1); }
+
+        .tab-content { padding: 35px; overflow-y: auto; flex-grow: 1; }
+        .tab-pane { display: none; animation: fadeIn 0.4s ease; }
+        .tab-pane.active { display: block; }
+
+        /* Detail Boxes */
+        .detail-reason {
+            background: #222;
+            border-left: 4px solid var(--primary);
+            padding: 25px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            color: var(--text-sub);
+            font-weight: 300; 
+        }
+        .detail-reason h4 { color: var(--text-strong); margin-bottom: 10px; font-weight: 600; }
+        .detail-reason p { font-weight: 300; line-height: 1.8; }
+        .sub-header { color: var(--primary); font-size: 1.3rem; margin-top: 20px; margin-bottom: 10px; font-weight: 500; }
+
+        /* Spoiler */
+        .spoiler-container {
+            background: #000;
+            color: #fff; padding: 30px; border-radius: 10px; text-align: center;
+            cursor: pointer; position: relative; border: 1px solid #555;
+        }
+        .spoiler-container.revealed { background: #111; color: var(--text-main); text-align: left; cursor: default; }
+        .spoiler-warning { font-weight: bold; color: var(--primary); display: block; margin-bottom: 10px; }
+        .spoiler-text { filter: blur(10px); opacity: 0.8; transition: all 0.5s; line-height: 1.8; font-weight: 300; }
+        .spoiler-container.revealed .spoiler-text { filter: blur(0); opacity: 1; }
+        .spoiler-hint { color: var(--primary); font-weight: 600; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);}
+        .spoiler-container.revealed .spoiler-hint, .spoiler-container.revealed .spoiler-warning { display: none; }
+
+        /* Loading */
+        #loading { display: none; text-align: center; padding: 60px 0; }
+        .spinner {
+            width: 50px; height: 50px; border: 4px solid rgba(255, 215, 0, 0.1);
+            border-left-color: var(--primary); border-radius: 50%;
+            animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+            display: inline-block;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        .hidden { display: none; }
+
 
     </style>
 </head>
 <body>
 
     <header>
+        <p class="top-badge-title">HIGH-END DATA MATCHUP | AI MATCHUP ENGINE</p> 
         <h1>AI 기반 연관 영화 작품 추천 시스템</h1>
-        <p class="english-title-sub">AI MATCHUP ENGINE - Premium Dark</p>
         <p class="subtitle">Content Vector & Collaborative Matrix를 기반으로, 당신의 다음 영화를 추천해드립니다.</p>
     </header>
 
@@ -461,7 +546,7 @@
             }
         }
         
-        // --- UI Rendering and Interaction Logic (생략된 부분은 위와 동일) ---
+        // --- UI Rendering and Interaction Logic ---
 
         function renderCards() {
             const grid = document.getElementById('movie-grid');
