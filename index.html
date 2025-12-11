@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI MATCHUP ENGINE - Premium Dark</title>
+    <title>AI 기반 연관 영화 작품 추천 시스템</title>
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
     <style>
         /* [Design System & Variables] - Luxury Dark Theme */
@@ -33,10 +33,11 @@
         
         body {
             font-family: var(--font-main);
+            /* 세련된 폰트 굵기 조정 - 일반 텍스트는 얇게 */
+            font-weight: 350; 
             background-color: var(--secondary);
             color: var(--text-main);
             line-height: 1.7;
-            /* Subtle background pattern for texture */
             background-image: radial-gradient(circle at 10% 20%, rgba(255, 215, 0, 0.03) 0%, transparent 20%),
                               radial-gradient(circle at 90% 80%, rgba(255, 215, 0, 0.05) 0%, transparent 20%);
         }
@@ -50,33 +51,32 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
         
-        .header-badge {
-            display: inline-block;
-            color: var(--primary);
-            font-weight: 500;
-            font-size: 0.9rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-bottom: 15px;
-            border: 1px solid var(--primary);
-            padding: 4px 10px;
-            opacity: 0.8;
-        }
-        
+        /* 1. 새로운 H1 타이틀 */
         h1 {
             font-size: 3.5rem;
             font-weight: 900;
-            letter-spacing: 0.05em; /* Wide spacing for luxury feel */
+            letter-spacing: 0.08em; /* 럭셔리한 느낌을 위해 자간 확장 */
             color: var(--text-strong);
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
         
+        /* 1. 이전 영어 제목을 위한 서브 스타일 */
+        .english-title-sub {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            font-weight: 500;
+            letter-spacing: 1px;
+            margin-bottom: 25px;
+            display: block;
+        }
+
+        /* 2. 서브타이틀 내용 변경 */
         p.subtitle {
             color: var(--text-sub);
             font-size: 1.1rem;
             max-width: 700px;
             margin: 0 auto;
-            font-weight: 300;
+            font-weight: 400; /* 일반 텍스트 굵기 조정 */
         }
 
         /* [Main Layout] */
@@ -117,6 +117,7 @@
             color: var(--text-main);
             transition: all 0.3s;
             font-family: var(--font-main);
+            font-weight: 400; /* 입력창 폰트 굵기 조정 */
         }
         input[type="text"]::placeholder { color: #555; font-weight: 300; }
         input[type="text"]:focus {
@@ -129,7 +130,7 @@
             width: 100%;
             padding: 18px;
             background: var(--primary);
-            color: var(--secondary); /* Dark text on Gold */
+            color: var(--secondary); 
             font-size: 1.15rem;
             font-weight: 800;
             border: none;
@@ -228,6 +229,7 @@
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
+            font-weight: 400; /* 일반 텍스트 굵기 조정 */
         }
 
         /* Match Rate Bar */
@@ -341,9 +343,11 @@
             border-radius: 6px;
             margin-bottom: 25px;
             color: var(--text-sub);
+            font-weight: 400; /* 일반 텍스트 굵기 조정 */
         }
         .detail-reason h4 { color: var(--text-strong); margin-bottom: 10px; font-weight: 700; }
-        .sub-header { color: var(--primary); font-size: 1.3rem; margin-top: 20px; margin-bottom: 10px; }
+        .detail-reason p { font-weight: 400; line-height: 1.8; }
+        .sub-header { color: var(--primary); font-size: 1.3rem; margin-top: 20px; margin-bottom: 10px; font-weight: 600; }
 
         /* Spoiler */
         .spoiler-container {
@@ -352,8 +356,8 @@
             cursor: pointer; position: relative; border: 1px solid #555;
         }
         .spoiler-container.revealed { background: #111; color: var(--text-main); text-align: left; cursor: default; }
-        .spoiler-warning { font-weight: bold; color: var(--accent); display: block; margin-bottom: 10px; }
-        .spoiler-text { filter: blur(10px); opacity: 0.8; transition: all 0.5s; line-height: 1.8; }
+        .spoiler-warning { font-weight: bold; color: var(--primary); display: block; margin-bottom: 10px; }
+        .spoiler-text { filter: blur(10px); opacity: 0.8; transition: all 0.5s; line-height: 1.8; font-weight: 400; }
         .spoiler-container.revealed .spoiler-text { filter: blur(0); opacity: 1; }
         .spoiler-hint { color: var(--primary); font-weight: 700; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);}
         .spoiler-container.revealed .spoiler-hint, .spoiler-container.revealed .spoiler-warning { display: none; }
@@ -368,14 +372,16 @@
         }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
+        .hidden { display: none; }
+
     </style>
 </head>
 <body>
 
     <header>
-        <span class="header-badge">High-End Data Matchup</span>
-        <h1>AI MATCHUP ENGINE</h1>
-        <p class="subtitle">Content Vector & Collaborative Matrix를 기반으로, 당신의 다음 필모그래피를 설계합니다.</p>
+        <h1>AI 기반 연관 영화 작품 추천 시스템</h1>
+        <p class="english-title-sub">AI MATCHUP ENGINE - Premium Dark</p>
+        <p class="subtitle">Content Vector & Collaborative Matrix를 기반으로, 당신의 다음 영화를 추천해드립니다.</p>
     </header>
 
     <div class="container">
@@ -389,7 +395,7 @@
                 <div class="form-group">
                     <label class="form-label" for="user-request">상세 요청 사항 (선택) - [추천 세부 조건 입력]</label>
                     <input type="text" id="user-request" 
-                        placeholder="추천받고 싶은 세부 사항 입력 - 이 영화와 비슷한 '장르'를 추천해줘, 이 영화의 '배우가 비슷한 역할'로 나오는 작품을 추천해줘, '비슷한 분위기'의 작품을 추천해줘">
+                        placeholder="예: 이 영화와 비슷한 '장르'를 추천해줘, 이 영화의 '배우가 비슷한 역할'로 나오는 작품을 추천해줘, '비슷한 분위기'의 작품을 추천해줘">
                 </div>
                 <button type="submit" class="btn-analyze">분석 및 추천 요청 (ACCESS THE MATRIX)</button>
             </form>
@@ -433,7 +439,7 @@
                     <h3 class="sub-header">AI 매칭 상세 리포트: 유사성 딥-다이브</h3>
                     <div class="detail-reason" id="modal-analysis-text">
                         </div>
-                    <p style="color:#777; font-size:0.9rem;">
+                    <p style="color:#777; font-size:0.9rem; font-weight: 400;">
                         * 분석 근거: NLP 텍스트 임베딩 (BERT) 및 코사인 유사도 측정.
                     </p>
                 </div>
@@ -561,7 +567,7 @@
             }
         }
         
-        // --- UI Rendering and Interaction Logic (Minimal changes to function names) ---
+        // --- UI Rendering and Interaction Logic ---
 
         function renderCards() {
             const grid = document.getElementById('movie-grid');
@@ -614,7 +620,7 @@
             const modal = document.getElementById('detail-modal');
             
             document.getElementById('modal-title').innerText = movie.title;
-            document.getElementById('modal-analysis-text').innerHTML = movie.fullReason; // Use innerHTML for structured content
+            document.getElementById('modal-analysis-text').innerHTML = movie.fullReason;
             document.getElementById('modal-plot-text').innerText = movie.plot;
             
             const reviewContainer = document.getElementById('modal-reviews-list');
@@ -624,7 +630,7 @@
                         <span style="color: var(--primary); font-weight: 700;">${r.source}</span>
                         <span style="color: #ccc; margin-left: 10px;">★ ${r.score}</span>
                     </div>
-                    <p style="color: var(--text-sub);">"${r.text}"</p>
+                    <p style="color: var(--text-sub); font-weight: 400;">"${r.text}"</p>
                 </div>
             `).join('');
 
