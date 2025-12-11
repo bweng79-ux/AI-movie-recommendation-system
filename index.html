@@ -457,6 +457,7 @@
                 return;
             }
 
+            // UI 상태 변경: 로딩 시작
             document.getElementById('loading').style.display = 'block';
             document.getElementById('results-area').classList.add('hidden');
             document.getElementById('movie-grid').innerHTML = '';
@@ -470,18 +471,42 @@
             };
 
             try {
-                // Mock Mode (Simulate network delay)
-                throw new Error("SERVER_URL_EMPTY");
+                // 실제 백엔드 /register 엔드포인트로 POST 요청 전송
+                const response = await fetch(`${SERVER_URL}/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                // 백엔드 통신 성공 응답 처리
+                console.log("백엔드 통신 성공:", result.message);
+                
+                // 현재는 통신 검증 후 임시로 Mock 데이터를 다시 사용하여 UI를 띄웁니다.
+                generateMockData(titleInput, requestInput);
+                renderCards();
+                
             } catch (error) {
-                setTimeout(() => {
-                    generateMockData(titleInput, requestInput);
-                    renderCards();
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('results-area').classList.remove('hidden');
-                }, 1800);
+                // 통신 실패 또는 서버 오류 처리
+                console.error("백엔드 서버 통신 중 오류 발생:", error);
+                
+                // 오류가 발생해도 UI가 깨지지 않도록 Mock 데이터를 fallback으로 사용
+                generateMockData(titleInput, requestInput);
+                renderCards();
+
+            } finally {
+                // UI 상태 변경: 로딩 종료 및 결과 영역 표시
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('results-area').classList.remove('hidden');
             }
         }
-
         /**
          * Mock Data Generator - Includes highly detailed analysis text
          */
@@ -645,4 +670,5 @@
     </script>
 </body>
 </html>
+
 
