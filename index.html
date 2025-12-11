@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI MATCHUP ENGINE - 영화 추천 시스템</title>
+    <style>
+        /* [Global Variables & Reset] */
+        :root {
+            --primary-color: #0044cc; /* Sports Broadcast Blue */
+            --accent-color: #ff3333;  /* Alert Red */
+            --bg-color: #f4f6f9;      /* Bright Modern Background */
+            --card-bg: #ffffff;
+            --text-main: #1a1a1a;
+            --text-sub: #666666;
+            --border-radius: 12px;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            --font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        /* [Header Section] */
+        header {
+            background: linear-gradient(135deg, #ffffff 0%, #eef2f5 100%);
+            border-bottom: 4px solid var(--primary-color);
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .header-badge {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 900;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-style: italic;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 10px;
+            color: #002266;
+        }
+        p.subtitle {
+            color: var(--text-sub);
+            font-size: 1.1rem;
+        }
+
+        /* [Main Container] */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* [Input Section] */
+        .input-section {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 40px;
+            border-left: 5px solid var(--primary-color);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #002266;
+            text-transform: uppercase;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            background-color: #fafafa;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background-color: #fff;
+        }
+        /* Placeholder styling specific request */
+        input::placeholder {
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        .btn-analyze {
+            width: 100%;
+            padding: 18px;
+            background: var(--primary-color);
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 800;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-analyze:hover {
+            background: #003399;
+            transform: translateY(-2px);
+        }
+
+        /* [Results Section] */
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+        }
+        .results-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            font-style: italic;
+        }
+        
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        /* [Movie Card] */
+        .movie-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            position: relative;
+            border-top: 4px solid transparent;
+        }
+        .movie-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border-top: 4px solid var(--accent-color);
+        }
+        .card-header {
+            height: 160px;
+            background-color: #ddd;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        .match-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--accent-color);
+            color: white;
+            padding: 5px 10px;
+            font-weight: bold;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .movie-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+        .similarity-brief {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            margin-bottom: 15px;
+            height: 40px; /* limit lines */
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        .tag-container {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        .tag {
+            background: #eef2f5;
+            color: #555;
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        /* [Load More Button] */
+        .load-more-container {
+            text-align: center;
+            margin-top: 40px;
+        }
+        .btn-load-more {
+            background: white;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 12px 40px;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-load-more:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+        .hidden { display: none; }
+
+        /* [Modal & Tabs] */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 700px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .modal-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            background: #f0f0f0;
+            border-bottom: 1px solid #ddd;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: none;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+        }
+        .tab-btn.active {
+            color: var(--primary-color);
+            background: white;
+            border-bottom: 3px solid var(--primary-color);
+        }
+
+        .tab-content {
+            padding: 30px;
+            overflow-y: auto;
+            min-height: 300px;
+        }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
+
+        /* Detail Styles */
+        .detail-reason {
+            background: #f9f9fc;
+            padding: 20px;
+            border-left: 4px solid var(--accent-color);
+            margin-bottom: 20px;
+            font-size: 1.05rem;
+        }
+        
+        /* Blind/Spoiler Logic */
+        .spoiler-container {
+            position: relative;
+            cursor: pointer;
+            padding: 20px;
+            background: #f8f8f8;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .spoiler-warning {
+            color: var(--accent-color);
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+        }
+        .spoiler-text {
+            filter: blur(8px);
+            user-select: none;
+            transition: filter 0.5s;
+        }
+        .spoiler-container.revealed .spoiler-text {
+            filter: blur(0);
+            user-select: text;
+        }
+        .spoiler-container.revealed .spoiler-warning {
+            display: none;
+        }
+        .spoiler-hint {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .spoiler-container.revealed .spoiler-hint {
+            opacity: 0;
+        }
+
+        /* Review Styles */
+        .review-item {
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+        }
+        .review-source {
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-right: 10px;
+        }
+        .review-score {
+            color: #ffaa00;
+            font-weight: bold;
+        }
+
+        /* Loading Spinner */
+        #loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border-left-color: var(--primary-color);
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <span class="header-badge">LIVE ANALYSIS</span>
+        <h1>AI MATCHUP ENGINE</h1>
+        <p class="subtitle">AI 기반 연관 영화 작품 추천 시스템 - 당신의 취향을 정밀하게 분석합니다</p>
+    </header>
+
+    <div class="container">
+        <section class="input-section">
+            <form id="recommendation-form" onsubmit="event.preventDefault(); register();">
+                <div class="form-group">
+                    <label class="form-label">1. 분석 대상 영화 (필수)</label>
+                    <input type="text" id="movie-title" required 
+                        placeholder="예: 인터스텔라, 기생충 - 감명깊게 본 영화나 연관 작품을 추천받고 싶은 영화 제목을 입력하세요.">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">2. 상세 요청 사항 (선택)</label>
+                    <input type="text" id="user-request" 
+                        placeholder="예: 이 영화와 비슷한 '장르'를 추천해줘, 이 영화의 '배우가 비슷한 역할'로 나오는 작품을 추천해줘, '비슷한 분위기'의 작품을 추천해줘">
+                </div>
+                <button type="submit" class="btn-analyze">분석 및 추천 시작 (START MATCHUP)</button>
+            </form>
+        </section>
+
+        <div id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; font-weight: 600; color: #666;">데이터 수집 및 AI 분석 중...</p>
+        </div>
+
+        <section id="results-area" class="hidden">
+            <div class="results-header">
+                <span class="results-title">ANALYSIS RESULT</span>
+                <span style="font-size: 0.9rem; color: #666;">추천 알고리즘: Hybrid (Content + Collaborative)</span>
+            </div>
+            
+            <div class="movie-grid" id="movie-grid">
+                </div>
+
+            <div class="load-more-container">
+                <button id="btn-load-more" class="btn-load-more" onclick="loadMore()">더 많은 작품 추천 (+3)</button>
+            </div>
+        </section>
+    </div>
+
+    <div class="modal-overlay" id="detail-modal" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 id="modal-title" style="margin:0; font-size: 1.5rem;">영화 제목</h2>
+                <button class="modal-close" onclick="closeModalDirect()">×</button>
+            </div>
+            
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('tab-analysis')">상세 분석</button>
+                <button class="tab-btn" onclick="switchTab('tab-plot')">줄거리 (Plot)</button>
+                <button class="tab-btn" onclick="switchTab('tab-reviews')">평가 (Reviews)</button>
+            </div>
+
+            <div class="tab-content">
+                <div id="tab-analysis" class="tab-pane active">
+                    <h3 style="margin-bottom:15px; color:var(--primary-color);">AI 매칭 상세 리포트</h3>
+                    <div class="detail-reason" id="modal-analysis-text">
+                        </div>
+                    <p style="color:#666; font-size:0.9rem;">
+                        * 분석 엔진: Scikit-learn Cosine Similarity & TF-IDF Vectorizer
+                    </p>
+                </div>
+
+                <div id="tab-plot" class="tab-pane">
+                    <h3 style="margin-bottom:10px;">시놉시스</h3>
+                    <div class="spoiler-container" onclick="this.classList.add('revealed')">
+                        <span class="spoiler-warning">⚠️ 클릭 시 줄거리가 나타납니다. (스포일러 주의)</span>
+                        <div class="spoiler-hint">CLICK TO VIEW</div>
+                        <p class="spoiler-text" id="modal-plot-text">
+                            </p>
+                    </div>
+                </div>
+
+                <div id="tab-reviews" class="tab-pane">
+                    <h3 style="margin-bottom:15px;">시청자 및 평론가 반응</h3>
+                    <div id="modal-reviews-list">
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // [핵심 요구 사항]
+        const SERVER_URL = ""; // Backend 주소가 들어갈 곳
+
+        // Global State
+        let currentRecommendations = [];
+        let displayedCount = 0;
+        let loadMoreCount = 0;
+        const INITIAL_COUNT = 5;
+        const ADDITIONAL_COUNT = 3;
+        const MAX_LOAD_CLICKS = 2;
+
+        /**
+         * Main Function: register()
+         * Handles form submission and simulates API call
+         */
+        async function register() {
+            const titleInput = document.getElementById('movie-title').value;
+            const requestInput = document.getElementById('user-request').value;
+
+            if (!titleInput) {
+                alert("분석 대상 영화 제목을 입력해주세요.");
+                return;
+            }
+
+            // UI Reset
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results-area').classList.add('hidden');
+            document.getElementById('movie-grid').innerHTML = '';
+            document.getElementById('btn-load-more').style.display = 'inline-block';
+            displayedCount = 0;
+            loadMoreCount = 0;
+
+            const requestData = {
+                title: titleInput,
+                details: requestInput
+            };
+
+            try {
+                // 1. 실제 API 통신 시도 (현재는 SERVER_URL이 비어있으므로 catch로 이동)
+                if (SERVER_URL) {
+                    const response = await fetch(SERVER_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(requestData)
+                    });
+                    const data = await response.json();
+                    // Handle real data here...
+                } else {
+                    throw new Error("SERVER_URL_EMPTY");
+                }
+            } catch (error) {
+                // [데모 모드] 백엔드 연결 전 프론트엔드 기능 시연을 위한 Mock Data 생성
+                console.log("Mock Data Mode Activated due to: " + error.message);
+                
+                // 1.5초 딜레이로 분석하는 척 연출
+                setTimeout(() => {
+                    generateMockData(titleInput, requestInput);
+                    renderCards();
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('results-area').classList.remove('hidden');
+                }, 1500);
+            }
+        }
+
+        /**
+         * Mock Data Generator
+         * Creates 11 fake movie recommendations based on input
+         */
+        function generateMockData(sourceTitle, details) {
+            currentRecommendations = [];
+            const genres = ["SF", "스릴러", "드라마", "액션", "미스터리"];
+            
+            for (let i = 1; i <= 11; i++) {
+                // 입력된 요청사항에 따라 분석 이유를 동적으로 생성하는 척함
+                let reasonType = "플롯 유사성";
+                let detailedReason = `입력하신 '${sourceTitle}'의 핵심 키워드 벡터와 ${90 - i*2}% 일치합니다. 특히 주인공이 처한 딜레마적 상황과 이야기 구조(Plot Structure)가 매우 흡사합니다.`;
+                
+                if (details && details.includes("배우")) {
+                    reasonType = "주연 배우 스타일";
+                    detailedReason = `요청하신 대로 배우의 연기 톤과 캐릭터의 성격이 유사한 작품입니다. 해당 배우의 필모그래피 분석 결과, 이 작품에서의 감정선이 가장 비슷하게 매핑되었습니다.`;
+                } else if (details && details.includes("감독")) {
+                    reasonType = "연출 스타일";
+                    detailedReason = `감독 특유의 미장센과 카메라 워킹이 돋보이는 작품입니다. 롱테이크 기법과 색감 활용 방식에서 높은 유사도 점수를 획득했습니다.`;
+                }
+
+                currentRecommendations.push({
+                    id: i,
+                    title: `추천 영화 ${i}: ${sourceTitle}의 ${i}번째 연관작`,
+                    matchScore: `${98 - i}%`,
+                    posterColor: `hsl(${200 + i * 10}, 60%, 80%)`, // Randomish color
+                    briefReason: `${reasonType} 기반 추천 - 유사도 ${98 - i}%`,
+                    fullReason: detailedReason,
+                    tags: ["AI추천", reasonType, "평점 4.5+"],
+                    plot: `이 영화는 ${sourceTitle}와 유사한 세계관을 공유하지는 않지만, 주인공이 겪는 사건의 흐름이 놀랍도록 비슷합니다. (블라인드 해제됨) 구체적으로 주인공은 초반에 큰 상실을 겪고, 중반부에 조력자를 만나며, 결말부에는 예상치 못한 반전을 맞이하게 됩니다. 이 과정에서 인간 본성에 대한 깊은 통찰을 제공합니다.`,
+                    reviews: [
+                        { source: "IMDb", score: "8.5/10", text: "놀라운 스토리텔링과 압도적인 비주얼." },
+                        { source: "Rotten Tomatoes", score: "92%", text: "올해 가장 신선한 충격. 반드시 봐야 할 명작." },
+                        { source: "Naver Movie", score: "9.1", text: "여운이 길게 남는 영화. n차 관람 필수." }
+                    ]
+                });
+            }
+        }
+
+        /**
+         * Render Cards
+         * Displays cards based on current state
+         */
+        function renderCards() {
+            const grid = document.getElementById('movie-grid');
+            
+            // Determine how many to show
+            let targetCount = INITIAL_COUNT + (loadMoreCount * ADDITIONAL_COUNT);
+            if (targetCount > currentRecommendations.length) targetCount = currentRecommendations.length;
+
+            // Render only new ones or re-render all (simplest is re-render logic for this demo, but let's append)
+            // For simplicity in vanilla JS, clear and render up to targetCount
+            grid.innerHTML = '';
+
+            for (let i = 0; i < targetCount; i++) {
+                const movie = currentRecommendations[i];
+                const card = document.createElement('div');
+                card.className = 'movie-card';
+                card.onclick = () => openModal(i);
+                
+                card.innerHTML = `
+                    <div class="card-header" style="background-color: ${movie.posterColor};">
+                        <span class="match-badge">MATCH ${movie.matchScore}</span>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="movie-title">${movie.title}</h3>
+                        <p class="similarity-brief">${movie.briefReason}</p>
+                        <div class="tag-container">
+                            ${movie.tags.map(tag => `<span class="tag">#${tag}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            }
+            displayedCount = targetCount;
+
+            // Hide button if max reached
+            const btn = document.getElementById('btn-load-more');
+            if (loadMoreCount >= MAX_LOAD_CLICKS || displayedCount >= currentRecommendations.length) {
+                btn.style.display = 'none';
+            }
+        }
+
+        /**
+         * Load More Logic
+         */
+        function loadMore() {
+            if (loadMoreCount < MAX_LOAD_CLICKS) {
+                loadMoreCount++;
+                renderCards();
+            }
+        }
+
+        /**
+         * Modal Logic
+         */
+        function openModal(index) {
+            const movie = currentRecommendations[index];
+            const modal = document.getElementById('detail-modal');
+            
+            // Fill Content
+            document.getElementById('modal-title').innerText = movie.title;
+            document.getElementById('modal-analysis-text').innerText = movie.fullReason;
+            document.getElementById('modal-plot-text').innerText = movie.plot;
+            
+            // Fill Reviews
+            const reviewContainer = document.getElementById('modal-reviews-list');
+            reviewContainer.innerHTML = movie.reviews.map(r => `
+                <div class="review-item">
+                    <div>
+                        <span class="review-source">${r.source}</span>
+                        <span class="review-score">★ ${r.score}</span>
+                    </div>
+                    <p style="margin-top:5px; color:#444;">"${r.text}"</p>
+                </div>
+            `).join('');
+
+            // Reset Tab to first one
+            switchTab('tab-analysis');
+            
+            // Reset Spoiler
+            document.querySelector('.spoiler-container').classList.remove('revealed');
+
+            // Show Modal
+            modal.classList.add('active');
+        }
+
+        function closeModal(event) {
+            if (event.target.id === 'detail-modal') {
+                document.getElementById('detail-modal').classList.remove('active');
+            }
+        }
+        
+        function closeModalDirect() {
+            document.getElementById('detail-modal').classList.remove('active');
+        }
+
+        /**
+         * Tab Logic
+         */
+        function switchTab(tabId) {
+            // Remove active class from all buttons and panes
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+
+            // Add active class to clicked button (Need to find the specific button triggered)
+            // Since we pass ID, we find button by onclick attribute match or order.
+            // Simplified: loop buttons and check text or index, OR simply add ID to buttons.
+            // Let's rely on event.currentTarget in a cleaner way, but for now:
+            const buttons = document.querySelectorAll('.tab-btn');
+            if(tabId === 'tab-analysis') buttons[0].classList.add('active');
+            if(tabId === 'tab-plot') buttons[1].classList.add('active');
+            if(tabId === 'tab-reviews') buttons[2].classList.add('active');
+
+            document.getElementById(tabId).classList.add('active');
+        }
+    </script>
+</body>
+</html>
