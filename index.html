@@ -471,7 +471,7 @@
             };
 
             try {
-                // 실제 백엔드 /register 엔드포인트로 POST 요청 전송
+                // 실제 백엔드 /register 엔드포인트로 POST 요청 전송 (AI 호출)
                 const response = await fetch(`${SERVER_URL}/register`, {
                     method: 'POST',
                     headers: {
@@ -486,18 +486,17 @@
 
                 const result = await response.json();
                 
-                // 백엔드 통신 성공 응답 처리
-                console.log("백엔드 통신 성공:", result.message);
-                
-                // 현재는 통신 검증 후 임시로 Mock 데이터를 다시 사용하여 UI를 띄웁니다.
-                generateMockData(titleInput, requestInput);
+                // 🌟 [핵심] AI가 보낸 실제 추천 데이터 (result.recommendations)를 사용합니다.
+                allRecommendations = result.recommendations;
                 renderCards();
                 
-            } catch (error) {
-                // 통신 실패 또는 서버 오류 처리
-                console.error("백엔드 서버 통신 중 오류 발생:", error);
+                console.log("AI 추천 데이터 수신 완료");
                 
-                // 오류가 발생해도 UI가 깨지지 않도록 Mock 데이터를 fallback으로 사용
+            } catch (error) {
+                // 통신 실패 또는 서버 오류 처리 (네트워크 문제, 키 오류 등)
+                console.error("백엔드 서버 통신 중 오류 발생. Mock 데이터를 대체 사용합니다:", error);
+                
+                // 오류가 발생했을 때만 Mock 데이터를 fallback으로 사용
                 generateMockData(titleInput, requestInput);
                 renderCards();
 
@@ -670,5 +669,6 @@
     </script>
 </body>
 </html>
+
 
 
